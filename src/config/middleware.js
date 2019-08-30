@@ -10,14 +10,6 @@ module.exports = [
     }
   },
   {
-    handle: 'resource',
-    enable: isDev,
-    options: {
-      root: path.join(think.ROOT_PATH, 'www'),
-      publicPath: /^\/(static|favicon\.ico)/
-    }
-  },
-  {
     handle: 'trace',
     enable: !think.isCli,
     options: {
@@ -36,5 +28,12 @@ module.exports = [
     options: {}
   },
   'logic',
-  'controller'
+  'controller',
+  {
+    handle: 'resource',
+    enable: isDev,
+    options: {
+      root: path.join(think.ROOT_PATH, 'view/packee-web/dist')
+    }
+  }
 ];

@@ -33,5 +33,7 @@ output.tar.gz
 runtime/
 app/
 
+view/packee-web/node_modules/
+
 config.development.js
 adapter.development.js
