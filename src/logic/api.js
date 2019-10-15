@@ -6,4 +6,12 @@ module.exports = class extends think.Logic {
   logoutAction() {
     this.allowMethods = 'post'
   }
+
+  createProjectAction() {
+    this.allowMethods = 'post'
+  }
+
+  updateProjectAction() {
+    this.allowMethods = 'post'
+  }
 }

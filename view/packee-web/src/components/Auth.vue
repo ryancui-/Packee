@@ -31,6 +31,10 @@ export default {
   },
   methods: {
     async auth() {
+      if (!this.token) {
+        return
+      }
+
       const { errno, data } = await this.$http({
         url: '/api/login',
         method: 'post',
@@ -53,7 +57,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;

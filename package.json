@@ -12,6 +12,8 @@
   "dependencies": {
     "fs-extra": "^8.1.0",
     "gitlab": "^11.0.1",
+    "lowdb": "^1.0.0",
+    "shortid": "^2.2.15",
     "think-cache": "^1.0.0",
     "think-cache-file": "^1.0.8",
     "think-logger3": "^1.0.0",

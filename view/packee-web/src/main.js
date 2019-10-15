@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
+import AtComponents from 'at-ui'
+import 'at-ui-style'
 
+Vue.use(AtComponents)
 Vue.config.productionTip = false
 
 Vue.prototype.$http = function(ajaxParams) {

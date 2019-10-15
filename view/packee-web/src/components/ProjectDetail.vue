@@ -1,0 +1,97 @@
+<template>
+  <div class="project-detail">
+    <form>
+      <div class="form-group">
+        <label for="name">项目名称</label>
+        <input
+          v-model="projectCopied.name"
+          :readonly="!!projectCopied.id"
+          type="text"
+          class="form-control"
+          id="name"
+          placeholder="Project name"
+        >
+        <small class="form-text text-muted">唯一的项目名称</small>
+      </div>
+      <div class="form-group">
+        <label for="shell">Bash 脚本</label>
+        <textarea
+          v-model="projectCopied.shell"
+          type="text"
+          class="form-control shell-textarea"
+          id="shell"
+          placeholder="Shell"
+        />
+      </div>
+      <div class="form-group">
+        <label for="args">参数列表</label>
+        <input
+          v-model="projectCopied.args"
+          type="text"
+          class="form-control"
+          id="args"
+          placeholder="Shell args"
+        >
+      </div>
+      <button type="button" class="btn btn-primary" @click="submitForm">
+        {{ submitText }}
+      </button>
+    </form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'ProjectDetail',
+  props: {
+    project: {
+      type: Object,
+      default: null
+    }
+  },
+  data() {
+    return {
+      projectCopied: {
+        id: '',
+        name: '',
+        shell: '',
+        args: ''
+      }
+    }
+  },
+  computed: {
+    submitText() {
+      return this.project ? '修改' : '新建'
+    }
+  },
+  watch: {
+    project() {
+      if (this.project) {
+        this.projectCopied = Object.assign({}, this.project)
+      }
+    }
+  },
+  methods: {
+    async submitForm() {
+      const url = this.project ? '/api/updateProject' : '/api/createProject'
+      const { errno } = await this.$http({
+        url,
+        method: 'post',
+        data: this.projectCopied
+      })
+      if (errno === 0) {
+        this.$emit('finish')
+      }
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+.project-detail {
+  .shell-textarea {
+    font-family: Monaco, monospace;
+    height: 200px;
+  }
+}
+</style>

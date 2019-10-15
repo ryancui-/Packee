@@ -1,4 +1,6 @@
 const Base = require('./base.js')
+const db = require('../model')
+const shortid = require('shortid')
 // const path = require('path')
 // const fork = require('child_process').fork
 
@@ -56,5 +58,38 @@ module.exports = class extends Base {
   async checkLoginAction() {
     const userInfo = await this.session('auth')
     return this.success(userInfo)
+  }
+
+  // 新建项目
+  async createProjectAction() {
+    const project = this.post()
+    const exists = db.get('projects')
+      .find({ name: project.name })
+      .value()
+    if (exists) {
+      return this.fail('存在同名 project')
+    }
+
+    const projectId = shortid.generate()
+    db.get('projects')
+      .push(Object.assign({}, project, { id: projectId }))
+      .write()
+    return this.success(projectId)
+  }
+
+  // 修改项目
+  async updateProjectAction() {
+    const project = this.post()
+    db.get('projects')
+      .find({ id: project.id })
+      .assign(project)
+      .write()
+    return this.success()
+  }
+
+  // 列出项目
+  async listProjectAction() {
+    const projects = db.get('projects').value()
+    return this.success(projects)
   }
 }

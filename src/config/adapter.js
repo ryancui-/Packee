@@ -1,11 +1,11 @@
-const fileCache = require('think-cache-file');
-const nunjucks = require('think-view-nunjucks');
-const fileSession = require('think-session-file');
-const mysql = require('think-model-mysql');
-const {Console, File, DateFile} = require('think-logger3');
-const path = require('path');
-const isDev = think.env === 'development';
-const socketio = require('think-websocket-socket.io');
+const fileCache = require('think-cache-file')
+const nunjucks = require('think-view-nunjucks')
+const fileSession = require('think-session-file')
+const mysql = require('think-model-mysql')
+const { Console, File, DateFile } = require('think-logger3')
+const path = require('path')
+const isDev = think.env === 'development'
+const socketio = require('think-websocket-socket.io')
 
 /**
  * cache adapter config
@@ -22,7 +22,7 @@ exports.cache = {
     pathDepth: 1,
     gcInterval: 24 * 60 * 60 * 1000 // gc interval
   }
-};
+}
 
 /**
  * model adapter config
@@ -46,7 +46,7 @@ exports.model = {
     password: 'root',
     dateStrings: true
   }
-};
+}
 
 /**
  * session adapter config
@@ -64,7 +64,7 @@ exports.session = {
     maxAge: '1h',
     sessionPath: path.join(think.ROOT_PATH, 'runtime/session')
   }
-};
+}
 
 /**
  * view adapter config
@@ -80,7 +80,7 @@ exports.view = {
   nunjucks: {
     handle: nunjucks
   }
-};
+}
 
 /**
  * logger adapter config
@@ -106,7 +106,7 @@ exports.logger = {
     alwaysIncludePattern: true,
     filename: path.join(think.ROOT_PATH, 'logs/app.log')
   }
-};
+}
 
 exports.websocket = {
   type: 'socketio',
@@ -123,4 +123,4 @@ exports.websocket = {
       addUser: '/websocket/addUser'
     }
   }
-};
+}
