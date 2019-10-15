@@ -4,7 +4,7 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-Vue.prototype.$proxy = function(ajaxParams) {
+Vue.prototype.$http = function(ajaxParams) {
   return new Promise((res, req) => {
     ajaxParams = Object.assign({
       url: '',

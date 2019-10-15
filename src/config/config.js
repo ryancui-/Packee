@@ -1,5 +1,7 @@
 // default config
 module.exports = {
   workers: 1,
-  projectRoot: '/Users/ryancui/.frontend-projects'
+  stickyCluster: true,
+  projectRoot: '/Users/ryancui/.frontend-projects',
+  authToken: 'whosyourdaddy666'
 };

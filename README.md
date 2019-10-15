@@ -1,22 +1,7 @@
+# Packee
 
-Application created by [ThinkJS](http://www.thinkjs.org)
+> Save my laptop!!!!!!!!
 
-## Install dependencies
+能用服务器干活为什么要让自己电脑的风扇呼呼作响？
 
-```
-npm install
-```
-
-## Start server
-
-```
-npm start
-```
-
-## Deploy with pm2
-
-Use pm2 to deploy app on production enviroment.
-
-```
-pm2 startOrReload pm2.json
-```
+这个东西很简单的，就是把一个 Shell 脚本在服务端执行一下。其实完全可以直接 ssh 上去，然后直接跑 shell 的。。

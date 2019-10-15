@@ -33,7 +33,8 @@
       "eslint:recommended"
     ],
     "globals": {
-      "$": false
+      "$": false,
+      "io": false
     },
     "rules": {
       "no-console": "off"

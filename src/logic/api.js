@@ -1,5 +1,9 @@
 module.exports = class extends think.Logic {
-  indexAction() {
-
+  loginAction() {
+    this.allowMethods = 'post'
   }
-};
+
+  logoutAction() {
+    this.allowMethods = 'post'
+  }
+}

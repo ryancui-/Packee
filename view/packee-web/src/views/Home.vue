@@ -1,34 +1,31 @@
 <template>
   <div class="home">
-    <div>
-      <h3>第一步</h3>
-      <div>
-        <input v-model="repoUrl" type="text">
-        <button @click="initRepo">初始化</button>
-      </div>
-    </div>
+    <auth />
   </div>
 </template>
 
 <script>
+import Auth from '../components/Auth'
+
 export default {
-  name: 'home',
+  name: 'Home',
+  components: {
+    Auth
+  },
   data() {
     return {
-      repoUrl: 'https://git.datatub.com/avalon/ds-avalon-front.git'
+
     }
   },
+  created() {
+
+  },
   methods: {
-    async initRepo() {
-      const data = await this.$proxy({
-        url: '/api/init',
-        method: 'post',
-        data: {
-          repo: this.repoUrl
-        }
-      })
-      console.log(data)
-    }
+
   }
 }
 </script>
+
+<style lang="less" scoped>
+
+</style>

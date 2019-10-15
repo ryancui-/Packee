@@ -5,6 +5,7 @@ const mysql = require('think-model-mysql');
 const {Console, File, DateFile} = require('think-logger3');
 const path = require('path');
 const isDev = think.env === 'development';
+const socketio = require('think-websocket-socket.io');
 
 /**
  * cache adapter config
@@ -55,13 +56,12 @@ exports.session = {
   type: 'file',
   common: {
     cookie: {
-      name: 'thinkjs'
-      // keys: ['werwer', 'werwer'],
-      // signed: true
+      name: 'PACKEE_SESSION_ID'
     }
   },
   file: {
     handle: fileSession,
+    maxAge: '1h',
     sessionPath: path.join(think.ROOT_PATH, 'runtime/session')
   }
 };
@@ -105,5 +105,22 @@ exports.logger = {
     pattern: '-yyyy-MM-dd',
     alwaysIncludePattern: true,
     filename: path.join(think.ROOT_PATH, 'logs/app.log')
+  }
+};
+
+exports.websocket = {
+  type: 'socketio',
+  common: {
+    // common config
+  },
+  socketio: {
+    handle: socketio,
+    path: '/socket.io',
+    adapter: null,
+    messages: {
+      open: '/websocket/open',
+      close: '/websocket/close',
+      addUser: '/websocket/addUser'
+    }
   }
 };
