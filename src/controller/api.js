@@ -54,6 +54,7 @@ module.exports = class extends Base {
   }
 
   async checkLoginAction() {
-    return this.success()
+    const userInfo = await this.session('auth')
+    return this.success(userInfo)
   }
 }

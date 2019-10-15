@@ -1,9 +1,6 @@
 <template>
   <div class="auth-container">
     <div class="input-group input-group-lg">
-      <div class="input-group-prepend">
-        <span class="input-group-text">Token</span>
-      </div>
       <input
         v-model="token"
         ref="input"
@@ -11,10 +8,11 @@
         class="form-control"
         aria-label="Sizing example input"
         aria-describedby="inputGroup-sizing-lg"
+        placeholder="Put your token here"
         @keypress.enter="auth"
       >
       <div class="input-group-append">
-        <button class="btn btn-primary" type="button" @click="auth">Auth me</button>
+        <button class="btn btn-primary" type="button" @click="auth">Auth it NOW</button>
       </div>
     </div>
   </div>
@@ -33,7 +31,7 @@ export default {
   },
   methods: {
     async auth() {
-      const { errno } = await this.$http({
+      const { errno, data } = await this.$http({
         url: '/api/login',
         method: 'post',
         data: {
@@ -41,7 +39,7 @@ export default {
         }
       })
       if (errno === 0) {
-        // TODO: 记录 userInfo 并跳转到首页
+        this.$emit('authSucceed', data)
       }
     }
   }
