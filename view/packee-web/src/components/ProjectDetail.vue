@@ -61,21 +61,9 @@ export default {
       return this.currentProject ? '修改' : '新建'
     }
   },
-  watch: {
-    currentProject:{
-      immediate: true,
-      handler() {
-        if (this.currentProject) {
-          this.projectCopied = Object.assign({}, this.currentProject)
-        } else {
-          this.projectCopied = {
-            id: '',
-            name: '',
-            shell: '',
-            args: ''
-          }
-        }
-      }
+  created() {
+    if (this.currentProject) {
+      this.projectCopied = Object.assign({}, this.currentProject)
     }
   },
   methods: {

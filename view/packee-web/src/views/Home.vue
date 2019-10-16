@@ -20,14 +20,26 @@
           {{ project.name }}
         </button>
       </div>
-      <button v-if="!isEditingProject" type="button" class="btn btn-primary" @click="onCreateProject">
-        新项目
+    </div>
+    <div v-if="currentProject" class="home__project-container">
+      <button
+        v-if="!isEditingProject"
+        type="button"
+        class="btn btn-primary"
+        @click="$store.commit('setEditingProject')"
+      >
+        编辑
       </button>
-      <button v-if="isEditingProject" type="button" class="btn btn-primary" @click="onFinishProject">
+      <button
+        v-if="isEditingProject"
+        type="button"
+        class="btn btn-primary"
+        @click="$store.commit('setNotEditingProject')"
+      >
         返回
       </button>
+      <project-detail v-if="isEditingProject" />
     </div>
-    <project-detail v-if="isEditingProject" />
   </div>
 </template>
 
@@ -52,14 +64,8 @@ export default {
     }
   },
   methods: {
-    onCreateProject() {
-      this.$store.commit('setEditingProject', null)
-    },
-    onFinishProject() {
-      this.$store.commit('setNotEditingProject')
-    },
     onSelectProject(project) {
-      this.$store.commit('setEditingProject', project)
+      this.$store.commit('setCurrentProject', project)
     }
   }
 }

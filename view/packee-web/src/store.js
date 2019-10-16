@@ -24,13 +24,15 @@ const store = new Vuex.Store({
     setProjects(state, payload) {
       state.projects = payload
     },
-    setEditingProject(state, project) {
+    setEditingProject(state) {
       state.isEditingProject = true
-      state.currentProject = project
     },
     setNotEditingProject(state) {
       state.isEditingProject = false
-      state.currentProject = null
+    },
+    setCurrentProject(state, project) {
+      state.isEditingProject = false
+      state.currentProject = project
     }
   },
   actions: {
