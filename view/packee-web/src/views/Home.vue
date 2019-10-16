@@ -10,7 +10,13 @@
           v-for="project in projects"
           :key="project.id"
           type="button"
-          class="btn btn-primary">
+          :class="{
+            'btn': true,
+            'btn-primary': currentProject && project.id === currentProject.id,
+            'btn-outline-primary': !currentProject || project.id !== currentProject.id
+          }"
+          @click="onSelectProject(project)"
+        >
           {{ project.name }}
         </button>
       </div>
@@ -51,6 +57,9 @@ export default {
     },
     onFinishProject() {
       this.$store.commit('setNotEditingProject')
+    },
+    onSelectProject(project) {
+      this.$store.commit('setEditingProject', project)
     }
   }
 }

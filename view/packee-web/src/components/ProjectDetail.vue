@@ -58,13 +58,23 @@ export default {
   computed: {
     ...mapState(['currentProject']),
     submitText() {
-      return this.project ? '修改' : '新建'
+      return this.currentProject ? '修改' : '新建'
     }
   },
   watch: {
-    currentProject() {
-      if (this.currentProject) {
-        this.projectCopied = Object.assign({}, this.currentProject)
+    currentProject:{
+      immediate: true,
+      handler() {
+        if (this.currentProject) {
+          this.projectCopied = Object.assign({}, this.currentProject)
+        } else {
+          this.projectCopied = {
+            id: '',
+            name: '',
+            shell: '',
+            args: ''
+          }
+        }
       }
     }
   },
@@ -75,7 +85,7 @@ export default {
         return
       }
 
-      const url = this.project ? '/api/updateProject' : '/api/createProject'
+      const url = this.projectCopied.id ? '/api/updateProject' : '/api/createProject'
       const { errno } = await this.$http({
         url,
         method: 'post',
