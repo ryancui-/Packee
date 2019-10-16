@@ -73,6 +73,11 @@ export default {
   },
   methods: {
     async submitForm() {
+      if (!this.projectCopied.name || !this.projectCopied.shell) {
+        this.$Notify.error({ title: '注意', message: '还有东西没填' })
+        return
+      }
+
       const url = this.project ? '/api/updateProject' : '/api/createProject'
       const { errno } = await this.$http({
         url,
@@ -81,6 +86,8 @@ export default {
       })
       if (errno === 0) {
         this.$emit('finish')
+      } else {
+        this.$Notify.error({ title: '出错了', message: '项目名重复了' })
       }
     }
   }

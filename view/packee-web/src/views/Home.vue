@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <auth v-if="!isLogin" @authSucceed="onAuthSuccess" />
+    <auth v-if="!isLogin" />
     <div class="home__user">
       <span>你好呀，{{ userInfo.name }}！</span>
     </div>
@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import Auth from '../components/Auth'
 import ProjectDetail from '../components/ProjectDetail'
 
@@ -36,12 +37,13 @@ export default {
   },
   data() {
     return {
-      isLogin: true,
-      userInfo: {},
       editProject: false,
       currentProject: null,
       projectList: []
     }
+  },
+  computed: {
+    ...mapState(['isLogin', 'userInfo']),
   },
   async created() {
     await this.checkLogin()
@@ -55,11 +57,9 @@ export default {
         url: '/api/checkLogin'
       })
       if (errno === 0) {
-        this.userInfo = data
-        return true
+        this.$store.commit('setLogin', data)
       } else {
-        this.isLogin = false
-        return false
+        this.$store.commit('setNotLogin')
       }
     },
     async listProject() {
@@ -69,10 +69,6 @@ export default {
       if (errno === 0) {
         this.projectList = data
       }
-    },
-    onAuthSuccess(userInfo) {
-      this.isLogin = true
-      this.userInfo = userInfo
     },
     onCreateProject() {
       this.editProject = true

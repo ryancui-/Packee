@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
-import AtComponents from 'at-ui'
+import { Notification } from 'at-ui'
 import 'at-ui-style'
+import store from './store'
 
-Vue.use(AtComponents)
 Vue.config.productionTip = false
 
+Vue.prototype.$Notify = Notification
 Vue.prototype.$http = function(ajaxParams) {
   return new Promise((res, req) => {
     ajaxParams = Object.assign({
@@ -17,6 +18,9 @@ Vue.prototype.$http = function(ajaxParams) {
         withCredentials: true
       },
       success: data => {
+        if (data.errno === 1001) {
+          store.commit('setNotLogin')
+        }
         res(data)
       },
       error: (data) => {
@@ -28,5 +32,6 @@ Vue.prototype.$http = function(ajaxParams) {
 }
 
 new Vue({
+  store,
   render: h => h(App)
 }).$mount('#app')

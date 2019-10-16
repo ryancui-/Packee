@@ -33,7 +33,7 @@ module.exports = class extends Base {
     const userInfo = await this.session('auth')
     // 获取用户的 session 信息，如果为空，返回 false 阻止后续的行为继续执行
     if (think.isEmpty(userInfo)) {
-      this.fail('no auth')
+      this.fail(1001, 'no auth')
       return false
     }
     return true

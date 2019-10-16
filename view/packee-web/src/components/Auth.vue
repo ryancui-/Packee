@@ -43,7 +43,7 @@ export default {
         }
       })
       if (errno === 0) {
-        this.$emit('authSucceed', data)
+        this.$store.commit('setLogin', data)
       }
     }
   }
