@@ -7,20 +7,21 @@
     <div class="home__operation">
       <div class="btn-group" role="group">
         <button
-          v-for="project in projectList"
+          v-for="project in projects"
           :key="project.id"
           type="button"
           class="btn btn-primary">
           {{ project.name }}
         </button>
       </div>
-      <button type="button" class="btn btn-primary" @click="onCreateProject">New Project</button>
+      <button v-if="!isEditingProject" type="button" class="btn btn-primary" @click="onCreateProject">
+        新项目
+      </button>
+      <button v-if="isEditingProject" type="button" class="btn btn-primary" @click="onFinishProject">
+        返回
+      </button>
     </div>
-    <project-detail
-      v-if="editProject"
-      :project="currentProject"
-      @finish="onProjectFinish"
-    />
+    <project-detail v-if="isEditingProject" />
   </div>
 </template>
 
@@ -35,47 +36,21 @@ export default {
     Auth,
     ProjectDetail
   },
-  data() {
-    return {
-      editProject: false,
-      currentProject: null,
-      projectList: []
-    }
-  },
   computed: {
-    ...mapState(['isLogin', 'userInfo']),
+    ...mapState(['isLogin', 'userInfo', 'isEditingProject', 'currentProject', 'projects']),
   },
   async created() {
-    await this.checkLogin()
+    await this.$store.dispatch('checkLogin')
     if (this.isLogin) {
-      await this.listProject()
+      await this.$store.dispatch('fetchProjects')
     }
   },
   methods: {
-    async checkLogin() {
-      const { errno, data } = await this.$http({
-        url: '/api/checkLogin'
-      })
-      if (errno === 0) {
-        this.$store.commit('setLogin', data)
-      } else {
-        this.$store.commit('setNotLogin')
-      }
-    },
-    async listProject() {
-      const { errno, data } = await this.$http({
-        url: '/api/listProject'
-      })
-      if (errno === 0) {
-        this.projectList = data
-      }
-    },
     onCreateProject() {
-      this.editProject = true
-      this.currentProject = null
+      this.$store.commit('setEditingProject', null)
     },
-    onProjectFinish() {
-      this.editProject = false
+    onFinishProject() {
+      this.$store.commit('setNotEditingProject')
     }
   }
 }

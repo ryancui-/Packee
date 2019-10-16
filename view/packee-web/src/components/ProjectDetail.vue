@@ -41,14 +41,10 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   name: 'ProjectDetail',
-  props: {
-    project: {
-      type: Object,
-      default: null
-    }
-  },
   data() {
     return {
       projectCopied: {
@@ -60,14 +56,15 @@ export default {
     }
   },
   computed: {
+    ...mapState(['currentProject']),
     submitText() {
       return this.project ? '修改' : '新建'
     }
   },
   watch: {
-    project() {
-      if (this.project) {
-        this.projectCopied = Object.assign({}, this.project)
+    currentProject() {
+      if (this.currentProject) {
+        this.projectCopied = Object.assign({}, this.currentProject)
       }
     }
   },
@@ -85,7 +82,8 @@ export default {
         data: this.projectCopied
       })
       if (errno === 0) {
-        this.$emit('finish')
+        this.$store.commit('setNotEditingProject')
+        await this.$store.dispatch('fetchProjects')
       } else {
         this.$Notify.error({ title: '出错了', message: '项目名重复了' })
       }
