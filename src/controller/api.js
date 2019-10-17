@@ -3,11 +3,13 @@ const db = require('../model')
 const shortid = require('shortid')
 const path = require('path')
 const fork = require('child_process').fork
-const { taskRunningMap, broadcastProcessing, broadcastDone } = require('../model/socket')
+const { runningTasks, broadcastProcessing, broadcastDone } = require('../model/socket')
 
 function runAsyncTask(payload) {
   const projectId = payload.projectId
-  if (taskRunningMap[projectId]) {
+  const taskId = payload.taskId
+  const currentRunningTaskIndex = runningTasks.findIndex(_ => _.projectId === projectId)
+  if (currentRunningTaskIndex !== -1) {
     return false
   }
 
@@ -15,24 +17,18 @@ function runAsyncTask(payload) {
   worker.on('message', ({ type, data }) => {
     switch (type) {
       case 'processing':
-        broadcastProcessing(data)
-        break
       case 'error':
-        broadcastProcessing(data)
-        setTimeout(() => {
-          taskRunningMap[projectId] = undefined
-        }, 200)
+        broadcastProcessing(projectId, taskId, data)
         break
       case 'done':
-        broadcastDone()
-        setTimeout(() => {
-          taskRunningMap[projectId] = undefined
-        }, 200)
+        broadcastDone(projectId, taskId, data)
         break
     }
   })
+
   worker.send(payload)
-  taskRunningMap[projectId] = worker
+  runningTasks.push({ projectId, taskId, worker, msg: '' })
+
   return true
 }
 
@@ -105,6 +101,7 @@ module.exports = class extends Base {
     return this.success(projects)
   }
 
+  // 运行异步 Task
   async runTaskAction() {
     const projectId = this.post('projectId')
     const taskId = shortid.generate()
@@ -119,17 +116,16 @@ module.exports = class extends Base {
       cwd: path.join(this.config('projectRoot'), project.name)
     })
     if (success) {
-      db.get('tasks')
-        .push({
-          projectId,
-          taskId,
-          msg: ''
-        })
-        .write()
       return this.success()
     } else {
       // TODO: 错误原因
       return this.fail()
     }
+  }
+
+  // 列出所有历史 Task，除去当前正在运行的 Task
+  async historyTasksAction() {
+    const tasks = db.get('tasks').value()
+    return this.success(tasks)
   }
 }

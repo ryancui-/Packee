@@ -11,7 +11,8 @@ const store = new Vuex.Store({
     currentProject: null,
     userInfo: {},
     projects: [],
-    taskRunning: [],
+    runningTasks: [],
+    historyTasks: [],
     runningMsg: ''
   },
   mutations: {
@@ -37,9 +38,17 @@ const store = new Vuex.Store({
       state.runningMsg = ''
       state.currentProject = project
     },
+    // 运行一个 task
     runTask(state, task) {
       state.runningMsg = ''
-      state.taskRunning.push(task)
+      state.runningTasks.push(task)
+    },
+    // 停止当前项目下的 task
+    stopTask(state) {
+      const currentrunningTaskIndex = state.runningTasks.findIndex(_ => _.projectId === state.currentProject.id)
+      if (currentrunningTaskIndex !== -1) {
+        state.runningTasks.splice(currentrunningTaskIndex, 1)
+      }
     },
     appendRunningMessage(state, newMessage) {
       state.runningMsg += newMessage
@@ -48,7 +57,7 @@ const store = new Vuex.Store({
   getters: {
     // 当前项目是否运行中
     currentProjectRunning(state) {
-      return state.currentProject && state.taskRunning.find(_ => _.projectId === state.currentProject.id)
+      return state.currentProject && state.runningTasks.find(_ => _.projectId === state.currentProject.id)
     }
   },
   actions: {

@@ -42,18 +42,20 @@
       <div class="home__task-running">
         <div class="home__task-running-btns">
           <button
+            v-if="!currentProjectRunning"
             type="button"
             class="btn btn-success"
             @click="run"
           >
-            Run
+            运行
           </button>
           <button
+            v-if="currentProjectRunning"
             type="button"
             class="btn btn-danger"
             @click="stop"
           >
-            Stop
+            停止
           </button>
         </div>
         <div class="home__task-running-msg">
@@ -68,7 +70,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import Auth from '../components/Auth'
 import ProjectDetail from '../components/ProjectDetail'
 
@@ -79,8 +81,15 @@ export default {
     ProjectDetail
   },
   computed: {
-    ...mapState(['isLogin', 'userInfo', 'isEditingProject',
-      'currentProject', 'projects', 'runningMsg']),
+    ...mapState([
+      'isLogin',
+      'userInfo',
+      'isEditingProject',
+      'currentProject',
+      'projects',
+      'runningMsg'
+    ]),
+    ...mapGetters(['currentProjectRunning'])
   },
   async created() {
     await this.$store.dispatch('checkLogin')
@@ -97,9 +106,13 @@ export default {
       this.socket = io('/')
       this.socket.on('task:done', () => {
         console.log('Done!')
+        this.$store.commit('stopTask')
+        // TODO: 历史 task 中需要 append 一个新的，暂时可以直接全量拉一遍 history tasks
       })
-      this.socket.on('task:msg', (msg) => {
-        this.$store.commit('appendRunningMessage', msg)
+      this.socket.on('task:msg', ({ projectId, msg }) => {
+        if (this.currentProject && projectId === this.currentProject.id) {
+          this.$store.commit('appendRunningMessage', msg)
+        }
       })
     },
     async run() {
