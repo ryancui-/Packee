@@ -119,8 +119,7 @@ exports.websocket = {
     adapter: null,
     messages: {
       open: '/websocket/open',
-      close: '/websocket/close',
-      addUser: '/websocket/addUser'
+      close: '/websocket/close'
     }
   }
 }

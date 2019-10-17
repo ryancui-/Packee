@@ -10,7 +10,9 @@ const store = new Vuex.Store({
     isEditingProject: false,
     currentProject: null,
     userInfo: {},
-    projects: []
+    projects: [],
+    taskRunning: [],
+    runningMsg: ''
   },
   mutations: {
     setLogin(state, userInfo) {
@@ -32,7 +34,21 @@ const store = new Vuex.Store({
     },
     setCurrentProject(state, project) {
       state.isEditingProject = false
+      state.runningMsg = ''
       state.currentProject = project
+    },
+    runTask(state, task) {
+      state.runningMsg = ''
+      state.taskRunning.push(task)
+    },
+    appendRunningMessage(state, newMessage) {
+      state.runningMsg += newMessage
+    }
+  },
+  getters: {
+    // 当前项目是否运行中
+    currentProjectRunning(state) {
+      return state.currentProject && state.taskRunning.find(_ => _.projectId === state.currentProject.id)
     }
   },
   actions: {

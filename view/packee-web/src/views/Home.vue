@@ -39,6 +39,30 @@
         返回
       </button>
       <project-detail v-if="isEditingProject" />
+      <div class="home__task-running">
+        <div class="home__task-running-btns">
+          <button
+            type="button"
+            class="btn btn-success"
+            @click="run"
+          >
+            Run
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            @click="stop"
+          >
+            Stop
+          </button>
+        </div>
+        <div class="home__task-running-msg">
+          <textarea :value="runningMsg" readonly />
+        </div>
+      </div>
+      <div class="home__task-history">
+        TODO: Task history
+      </div>
     </div>
   </div>
 </template>
@@ -55,17 +79,47 @@ export default {
     ProjectDetail
   },
   computed: {
-    ...mapState(['isLogin', 'userInfo', 'isEditingProject', 'currentProject', 'projects']),
+    ...mapState(['isLogin', 'userInfo', 'isEditingProject',
+      'currentProject', 'projects', 'runningMsg']),
   },
   async created() {
     await this.$store.dispatch('checkLogin')
     if (this.isLogin) {
       await this.$store.dispatch('fetchProjects')
+      this.connectSocket()
     }
   },
   methods: {
     onSelectProject(project) {
       this.$store.commit('setCurrentProject', project)
+    },
+    connectSocket() {
+      this.socket = io('/')
+      this.socket.on('task:done', () => {
+        console.log('Done!')
+      })
+      this.socket.on('task:msg', (msg) => {
+        this.$store.commit('appendRunningMessage', msg)
+      })
+    },
+    async run() {
+      const { errno, data } = await this.$http({
+        url: '/api/runTask',
+        method: 'post',
+        data: {
+          projectId: this.currentProject.id
+        }
+      })
+      if (errno === 0) {
+        this.$store.commit('runTask', {
+          projectId: this.currentProject.id,
+          taskId: data,
+          msg: ''
+        })
+      }
+    },
+    stop() {
+      // TODO: 停下来
     }
   }
 }
@@ -80,6 +134,31 @@ export default {
 
   &__user {
     font-size: 15px;
+  }
+
+  &__task-running {
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+  }
+
+  &__task-running-msg {
+    margin-top: 10px;
+    textarea {
+      width: 100%;
+      height: 500px;
+      outline: 0;
+      resize: none;
+      box-sizing: border-box;
+      border: 1px solid #e2e2e2;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: Menlo, Monaco, Consolas, Courier, monospace;
+      font-size: 13px;
+      background-color: #f9f9f9;
+      color: #000;
+      line-height: 1.8;
+    }
   }
 }
 </style>

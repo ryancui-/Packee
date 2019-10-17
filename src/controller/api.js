@@ -1,28 +1,40 @@
 const Base = require('./base.js')
 const db = require('../model')
 const shortid = require('shortid')
-// const path = require('path')
-// const fork = require('child_process').fork
+const path = require('path')
+const fork = require('child_process').fork
+const { taskRunningMap, broadcastProcessing, broadcastDone } = require('../model/socket')
 
-// function initRepoWorker(payload) {
-//   return new Promise(resolve => {
-//     const worker = fork(path.join(__dirname, '../task/initRepo.js'))
-//     worker.on('message', payload => {
-//       switch (payload.type) {
-//         case 'processing':
-//           console.log(payload.data)
-//           break
-//         case 'error':
-//           resolve({ success: false })
-//           break
-//         case 'finish':
-//           resolve({ success: payload.data })
-//           break
-//       }
-//     })
-//     worker.send(payload)
-//   })
-// }
+function runAsyncTask(payload) {
+  const projectId = payload.projectId
+  if (taskRunningMap[projectId]) {
+    return false
+  }
+
+  const worker = fork(path.join(__dirname, '../task/async-worker.js'))
+  worker.on('message', ({ type, data }) => {
+    switch (type) {
+      case 'processing':
+        broadcastProcessing(data)
+        break
+      case 'error':
+        broadcastProcessing(data)
+        setTimeout(() => {
+          taskRunningMap[projectId] = undefined
+        }, 200)
+        break
+      case 'done':
+        broadcastDone()
+        setTimeout(() => {
+          taskRunningMap[projectId] = undefined
+        }, 200)
+        break
+    }
+  })
+  worker.send(payload)
+  taskRunningMap[projectId] = worker
+  return true
+}
 
 module.exports = class extends Base {
   async __before() {
@@ -91,5 +103,33 @@ module.exports = class extends Base {
   async listProjectAction() {
     const projects = db.get('projects').value()
     return this.success(projects)
+  }
+
+  async runTaskAction() {
+    const projectId = this.post('projectId')
+    const taskId = shortid.generate()
+    const project = db.get('projects')
+      .find({ id: projectId })
+      .value()
+    const bash = project.shell
+    const success = runAsyncTask({
+      projectId,
+      taskId,
+      bash,
+      cwd: path.join(this.config('projectRoot'), project.name)
+    })
+    if (success) {
+      db.get('tasks')
+        .push({
+          projectId,
+          taskId,
+          msg: ''
+        })
+        .write()
+      return this.success()
+    } else {
+      // TODO: 错误原因
+      return this.fail()
+    }
   }
 }
