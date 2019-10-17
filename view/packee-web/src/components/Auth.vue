@@ -8,11 +8,11 @@
         class="form-control"
         aria-label="Sizing example input"
         aria-describedby="inputGroup-sizing-lg"
-        placeholder="Put your token here"
+        :placeholder="placeholder"
         @keypress.enter="auth"
       >
       <div class="input-group-append">
-        <button class="btn btn-primary" type="button" @click="auth">Auth it NOW</button>
+        <button class="btn btn-primary" type="button" @click="auth">乖啦</button>
       </div>
     </div>
   </div>
@@ -23,7 +23,21 @@ export default {
   name: 'Auth',
   data() {
     return {
-      token: ''
+      token: '',
+      placeholders: [
+        '谁是小可爱？',
+        '错了，再想想谁是小可爱〜？',
+        '还是不对，这次要想清楚了',
+        '怎么可能！你是不是傻！'
+      ],
+      placeholderIndex: 0
+    }
+  },
+  computed: {
+    placeholder() {
+      return this.placeholderIndex >= this.placeholders.length
+        ? this.placeholders[this.placeholders.length - 1]
+        : this.placeholders[this.placeholderIndex]
     }
   },
   mounted() {
@@ -44,6 +58,10 @@ export default {
       })
       if (errno === 0) {
         this.$store.commit('setLogin', data)
+        this.$emit('auth')
+      } else {
+        this.token = ''
+        this.placeholderIndex++
       }
     }
   }
@@ -61,6 +79,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 100000;
   & > div {
     width: 60%;
   }

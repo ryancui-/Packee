@@ -1,6 +1,7 @@
 <template>
   <div class="home">
-    <auth v-if="!isLogin" />
+    <auth v-if="!isLogin" @auth="init"/>
+
     <div class="home__user">
       <span>你好呀，{{ userInfo.name }}！</span>
     </div>
@@ -106,11 +107,15 @@ export default {
   async created() {
     await this.$store.dispatch('checkLogin')
     if (this.isLogin) {
-      await this.$store.dispatch('fetchProjects')
-      this.connectSocket()
+      await this.init()
     }
   },
   methods: {
+    // 初始化系统
+    async init() {
+      await this.$store.dispatch('fetchProjects')
+      this.connectSocket()
+    },
     onSelectProject(project) {
       this.$store.commit('setCurrentProject', project.id)
       this.$store.dispatch('fetchProjectRunningTask')
