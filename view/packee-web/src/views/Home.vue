@@ -57,13 +57,22 @@
           >
             停止
           </button>
+          <div v-if="false" class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;"></div>
+          </div>
         </div>
         <div class="home__task-running-msg">
           <textarea :value="runningMsg" readonly />
         </div>
       </div>
       <div class="home__task-history">
-        TODO: Task history
+        <div
+          v-for="task in historyTasks"
+          :key="task.id"
+          class="home__task-history-item"
+        >
+          {{ task.taskId + ' ' +task.doneFlag }}
+        </div>
       </div>
     </div>
   </div>
@@ -85,11 +94,14 @@ export default {
       'isLogin',
       'userInfo',
       'isEditingProject',
-      'currentProject',
       'projects',
-      'runningMsg'
+      'runningMsg',
+      'historyTasks'
     ]),
-    ...mapGetters(['currentProjectRunning'])
+    ...mapGetters([
+      'currentProject',
+      'currentProjectRunning'
+    ])
   },
   async created() {
     await this.$store.dispatch('checkLogin')
@@ -100,14 +112,14 @@ export default {
   },
   methods: {
     onSelectProject(project) {
-      this.$store.commit('setCurrentProject', project)
+      this.$store.commit('setCurrentProject', project.id)
+      this.$store.dispatch('fetchHistoryTasks')
     },
     connectSocket() {
       this.socket = io('/')
       this.socket.on('task:done', () => {
-        console.log('Done!')
         this.$store.commit('stopTask')
-        // TODO: 历史 task 中需要 append 一个新的，暂时可以直接全量拉一遍 history tasks
+        this.$store.dispatch('fetchHistoryTasks')
       })
       this.socket.on('task:msg', ({ projectId, msg }) => {
         if (this.currentProject && projectId === this.currentProject.id) {

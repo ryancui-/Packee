@@ -8,7 +8,7 @@ const store = new Vuex.Store({
   state: {
     isLogin: true,
     isEditingProject: false,
-    currentProject: null,
+    currentProjectId: null,
     userInfo: {},
     projects: [],
     runningTasks: [],
@@ -33,10 +33,10 @@ const store = new Vuex.Store({
     setNotEditingProject(state) {
       state.isEditingProject = false
     },
-    setCurrentProject(state, project) {
+    setCurrentProject(state, projectId) {
       state.isEditingProject = false
       state.runningMsg = ''
-      state.currentProject = project
+      state.currentProjectId = projectId
     },
     // 运行一个 task
     runTask(state, task) {
@@ -45,19 +45,25 @@ const store = new Vuex.Store({
     },
     // 停止当前项目下的 task
     stopTask(state) {
-      const currentrunningTaskIndex = state.runningTasks.findIndex(_ => _.projectId === state.currentProject.id)
+      const currentrunningTaskIndex = state.runningTasks.findIndex(_ => _.projectId === state.currentProjectId)
       if (currentrunningTaskIndex !== -1) {
         state.runningTasks.splice(currentrunningTaskIndex, 1)
       }
     },
     appendRunningMessage(state, newMessage) {
       state.runningMsg += newMessage
+    },
+    setHistoryTasks(state, payload) {
+      state.historyTasks = payload
     }
   },
   getters: {
     // 当前项目是否运行中
     currentProjectRunning(state) {
-      return state.currentProject && state.runningTasks.find(_ => _.projectId === state.currentProject.id)
+      return state.currentProjectId && state.runningTasks.find(_ => _.projectId === state.currentProjectId)
+    },
+    currentProject(state) {
+      return state.projects.find(_ => _.id === state.currentProjectId)
     }
   },
   actions: {
@@ -72,6 +78,15 @@ const store = new Vuex.Store({
         url: '/api/listProject'
       })
       commit('setProjects', data)
+    },
+    async fetchHistoryTasks({ commit, state }) {
+      const { errno, data } = await http({
+        url: '/api/historyTasks',
+        data: {
+          projectId: state.currentProjectId
+        }
+      })
+      errno === 0 ? commit('setHistoryTasks', data) : ''
     }
   }
 })

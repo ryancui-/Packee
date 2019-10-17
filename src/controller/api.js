@@ -125,7 +125,8 @@ module.exports = class extends Base {
 
   // 列出所有历史 Task，除去当前正在运行的 Task
   async historyTasksAction() {
-    const tasks = db.get('tasks').value()
+    const projectId = this.get('projectId')
+    const tasks = db.get('tasks').filter({ projectId }).value()
     return this.success(tasks)
   }
 }

@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'ProjectDetail',
@@ -56,7 +56,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['currentProject']),
+    ...mapGetters(['currentProject']),
     submitText() {
       return this.currentProject ? '修改' : '新建'
     }
