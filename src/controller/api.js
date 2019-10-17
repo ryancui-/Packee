@@ -17,8 +17,10 @@ function runAsyncTask(payload) {
   worker.on('message', ({ type, data }) => {
     switch (type) {
       case 'processing':
-      case 'error':
         broadcastProcessing(projectId, taskId, data)
+        break
+      case 'error':
+        // TODO: error 要看看怎么处理
         break
       case 'done':
         broadcastDone(projectId, taskId, data)
@@ -116,10 +118,10 @@ module.exports = class extends Base {
       cwd: path.join(this.config('projectRoot'), project.name)
     })
     if (success) {
-      return this.success()
+      return this.success(taskId)
     } else {
       // TODO: 错误原因
-      return this.fail()
+      return this.fail('跑不了啊')
     }
   }
 
@@ -128,5 +130,18 @@ module.exports = class extends Base {
     const projectId = this.get('projectId')
     const tasks = db.get('tasks').filter({ projectId }).value()
     return this.success(tasks)
+  }
+
+  // 返回给定项目当前是否有任务正在运行
+  async runningTaskAction() {
+    const projectId = this.get('projectId')
+    const task = runningTasks.find(_ => _.projectId === projectId)
+    return this.success(task
+      ? {
+        projectId: task.projectId,
+        taskId: task.taskId,
+        msg: task.msg
+      }
+      : null)
   }
 }

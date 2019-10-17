@@ -9,10 +9,13 @@ process.on('message', ({ bash, cwd }) => {
     process.send({ type: 'processing', data: `${data}` })
   })
   child.stderr.on('data', data => {
-    process.send({ type: 'error', data: `${data}` })
+    process.send({ type: 'processing', data: `${data}` })
   })
   child.on('close', code => {
     process.send({ type: 'done', data: code })
+  })
+  child.on('error', (err) => {
+    process.send({ type: 'error', data: err })
   })
 })
 

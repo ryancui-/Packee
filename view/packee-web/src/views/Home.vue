@@ -113,13 +113,14 @@ export default {
   methods: {
     onSelectProject(project) {
       this.$store.commit('setCurrentProject', project.id)
-      this.$store.dispatch('fetchHistoryTasks')
+      this.$store.dispatch('fetchProjectRunningTask')
+      this.$store.dispatch('fetchProjectHistoryTasks')
     },
     connectSocket() {
       this.socket = io('/')
       this.socket.on('task:done', () => {
         this.$store.commit('stopTask')
-        this.$store.dispatch('fetchHistoryTasks')
+        this.$store.dispatch('fetchProjectHistoryTasks')
       })
       this.socket.on('task:msg', ({ projectId, msg }) => {
         if (this.currentProject && projectId === this.currentProject.id) {
@@ -128,7 +129,7 @@ export default {
       })
     },
     async run() {
-      const { errno, data } = await this.$http({
+      const { errno, data, msg } = await this.$http({
         url: '/api/runTask',
         method: 'post',
         data: {
@@ -141,6 +142,8 @@ export default {
           taskId: data,
           msg: ''
         })
+      } else {
+        this.$Notify.error({ title: '出错了', message: msg })
       }
     },
     stop() {

@@ -79,7 +79,38 @@ const store = new Vuex.Store({
       })
       commit('setProjects', data)
     },
-    async fetchHistoryTasks({ commit, state }) {
+    // 获取当前项目是否有正在 running 的 task
+    async fetchProjectRunningTask({ state }) {
+      const { errno, data } = await http({
+        url: '/api/runningTask',
+        data: {
+          projectId: state.currentProjectId
+        }
+      })
+      if (errno === 0) {
+        const runningTaskIndex = state.runningTasks.findIndex(_ => _.projectId === state.currentProjectId)
+        if (data) {
+          // 仍然在跑任务
+          if (runningTaskIndex === -1) {
+            state.runningTasks.push(data)
+          } else {
+            const task = state.runningTasks[runningTaskIndex]
+            if (task.taskId !== data.taskId) {
+              console.log('Ooz...impossible')
+              return
+            }
+            task.msg = data.msg
+          }
+          state.runningMsg = data.msg
+        } else {
+          // 任务已经跑完啦
+          if (runningTaskIndex !== -1) {
+            state.runningTasks.splice(runningTaskIndex, 1)
+          }
+        }
+      }
+    },
+    async fetchProjectHistoryTasks({ commit, state }) {
       const { errno, data } = await http({
         url: '/api/historyTasks',
         data: {
