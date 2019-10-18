@@ -29,7 +29,7 @@ function runAsyncTask(payload) {
   })
 
   worker.send(payload)
-  runningTasks.push({ projectId, taskId, worker, msg: '' })
+  runningTasks.push({ projectId, taskId, worker, msg: '', start: Date.now() })
 
   return true
 }
@@ -140,7 +140,8 @@ module.exports = class extends Base {
       ? {
         projectId: task.projectId,
         taskId: task.taskId,
-        msg: task.msg
+        msg: task.msg,
+        start: task.start
       }
       : null)
   }

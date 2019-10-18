@@ -9,7 +9,7 @@ module.exports = {
       },
       '/socket.io': {
         target: 'http://localhost:8360',
-        ws: false,
+        ws: true,
         changeOrigin: true
       }
     }

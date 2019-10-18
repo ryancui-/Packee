@@ -55,6 +55,13 @@ const store = new Vuex.Store({
     },
     setHistoryTasks(state, payload) {
       state.historyTasks = payload
+    },
+    // 重温一下历史任务的数据，但是当前项目的 runningTask 依然是在接收数据的
+    reviewHistoryTask(state, historyTask) {
+      state.runningMsg = historyTask.msg
+    },
+    // 回到当前运行中的 task
+    reviewRunningTask() {
     }
   },
   getters: {

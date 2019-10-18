@@ -1,10 +1,7 @@
 <template>
   <div class="home">
-    <auth v-if="!isLogin" @auth="init"/>
+    <auth v-if="!isLogin" @auth="init" />
 
-    <div class="home__user">
-      <span>你好呀，{{ userInfo.name }}！</span>
-    </div>
     <div class="home__operation">
       <div class="btn-group" role="group">
         <button
@@ -22,6 +19,7 @@
         </button>
       </div>
     </div>
+
     <div v-if="currentProject" class="home__project-container">
       <button
         v-if="!isEditingProject"
@@ -59,7 +57,8 @@
             停止
           </button>
           <div v-if="false" class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                 style="width: 100%;"></div>
           </div>
         </div>
         <div class="home__task-running-msg">
@@ -67,12 +66,20 @@
         </div>
       </div>
       <div class="home__task-history">
+        <div class="home__task-history-item home__task-history-header">
+          <span>序号</span>
+          <span>创建时间</span>
+          <span>耗时</span>
+        </div>
         <div
-          v-for="task in historyTasks"
-          :key="task.id"
+          v-for="(task, index) in historyTasks"
+          :key="task.taskId"
           class="home__task-history-item"
+          @click="loadHistoryMessage(task)"
         >
-          {{ task.taskId + ' ' +task.doneFlag }}
+          <span>#{{ index + 1 }}</span>
+          <span>{{ task.createTime }}</span>
+          <span>{{ task.duration }} ms</span>
         </div>
       </div>
     </div>
@@ -153,6 +160,9 @@ export default {
     },
     stop() {
       // TODO: 停下来
+    },
+    loadHistoryMessage(task) {
+      this.$store.commit('reviewHistoryTask', task)
     }
   }
 }
@@ -173,6 +183,7 @@ export default {
     box-sizing: border-box;
     padding: 10px;
     border: 1px solid #e2e2e2;
+    border-radius: 4px;
   }
 
   &__task-running-msg {
@@ -191,6 +202,37 @@ export default {
       background-color: #f9f9f9;
       color: #000;
       line-height: 1.8;
+    }
+  }
+
+  &__task-history {
+    margin-top: 10px;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
+    padding: 10px;
+  }
+  &__task-history-item {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    font-size: 13px;
+    border-radius: 4px;
+    padding: 0 20px;
+    & > span {
+      flex: 1;
+    }
+    &:hover {
+      background-color: #d1e7f3;
+      cursor: pointer;
+    }
+  }
+  &__task-history-header {
+    font-weight: bold;
+    color: #000;
+    &:hover {
+      background-color: unset;
+      cursor: unset;
     }
   }
 }

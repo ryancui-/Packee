@@ -28,6 +28,16 @@ exports.broadcastDone = (projectId, taskId, doneFlag) => {
   })
   // 持久化 task 到 db
   const taskIndex = runningTasks.findIndex(_ => _.projectId === projectId && _.taskId === taskId)
-  db.get('tasks').push({ projectId, taskId, msg: runningTasks[taskIndex].msg, doneFlag }).write()
+  const now = Date.now()
+  db.get('tasks')
+    .push({
+      projectId,
+      taskId,
+      msg: runningTasks[taskIndex].msg,
+      doneFlag,
+      createTime: think.datetime(runningTasks[taskIndex].start),
+      duration: now - runningTasks[taskIndex].start
+    })
+    .write()
   runningTasks.splice(taskIndex, 1)
 }
