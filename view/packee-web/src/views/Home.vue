@@ -47,7 +47,7 @@
             v-if="!currentProjectRunning"
             type="button"
             class="btn btn-success"
-            @click="run"
+            @click="openParamsDialog"
           >
             运行
           </button>
@@ -96,6 +96,28 @@
         </div>
       </div>
     </div>
+
+    <at-modal
+      v-model="runModal"
+      title="确认参数"
+      @on-confirm="run"
+    >
+      <div v-if="params.length === 0">无参数</div>
+      <form v-else>
+        <div
+          v-for="param in params"
+          :key="param.key"
+          class="form-group"
+        >
+          <label>{{ param.key }}</label>
+          <textarea
+            v-model="param.value"
+            type="text"
+            class="form-control"
+          />
+        </div>
+      </form>
+    </at-modal>
   </div>
 </template>
 
@@ -113,7 +135,9 @@ export default {
   },
   data() {
     return {
-      messageHTML: ''
+      messageHTML: '',
+      runModal: false,
+      params: []
     }
   },
   computed: {
@@ -143,11 +167,14 @@ export default {
       await this.$store.dispatch('fetchProjects')
       this.connectSocket()
     },
-    onSelectProject(project) {
+    async onSelectProject(project) {
       this.$store.commit('setCurrentProject', project.id)
-      this.$store.dispatch('fetchProjectRunningTask')
-      this.$store.dispatch('fetchProjectHistoryTasks')
+      await this.$store.dispatch('fetchProjectRunningTask')
+      await this.$store.dispatch('fetchProjectHistoryTasks')
       this.messageHTML = ''
+      if (this.currentTask) {
+        this.renderMessage(this.currentTask.msg, true)
+      }
     },
     connectSocket() {
       this.socket = io('/')
@@ -167,7 +194,8 @@ export default {
         url: '/api/runTask',
         method: 'post',
         data: {
-          projectId: this.currentProject.id
+          projectId: this.currentProject.id,
+          params: JSON.stringify(this.params)
         }
       })
       if (errno === 0) {
@@ -196,6 +224,19 @@ export default {
     },
     formatTime(time) {
       return timeago.format(time, 'zh_CN')
+    },
+    openParamsDialog() {
+      this.params = []
+      if (this.currentProject.args) {
+        const args = this.currentProject.args.split(',')
+        this.params = args.map(_ => _.trim())
+          .filter(_ => !!_)
+          .map(_ => ({
+            key: _,
+            value: ''
+          }))
+      }
+      this.runModal = true
     }
   }
 }

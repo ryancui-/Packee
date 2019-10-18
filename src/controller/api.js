@@ -106,11 +106,20 @@ module.exports = class extends Base {
   // 运行异步 Task
   async runTaskAction() {
     const projectId = this.post('projectId')
+    const params = JSON.parse(this.post('params'))
+
     const taskId = shortid.generate()
     const project = db.get('projects')
       .find({ id: projectId })
       .value()
-    const bash = project.shell
+    let bash = project.shell
+
+    // 将 bash 中的变量替换掉，嘻嘻
+    params.forEach(({ key, value }) => {
+      const re = new RegExp(`{${key}}`, 'g')
+      bash = bash.replace(re, value)
+    })
+
     const success = runAsyncTask({
       projectId,
       taskId,

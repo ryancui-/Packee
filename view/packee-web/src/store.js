@@ -71,7 +71,7 @@ const store = new Vuex.Store({
       return state.projects.find(_ => _.id === state.currentProjectId)
     },
     currentTask(state) {
-      return state.runningTasks.findIndex(_ => _.projectId === state.currentProjectId)
+      return state.runningTasks.find(_ => _.projectId === state.currentProjectId)
     }
   },
   actions: {
