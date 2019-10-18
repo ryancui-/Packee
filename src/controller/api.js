@@ -121,6 +121,7 @@ module.exports = class extends Base {
     })
 
     const success = runAsyncTask({
+      type: 'start',
       projectId,
       taskId,
       bash,
@@ -132,6 +133,17 @@ module.exports = class extends Base {
       // TODO: 错误原因
       return this.fail('跑不了啊')
     }
+  }
+
+  // 终止 task 运行
+  async stopTaskAction() {
+    const projectId = this.post('projectId')
+    const task = runningTasks.find(_ => _.projectId === projectId)
+    if (task) {
+      task.worker.kill('SIGHUP')
+      runningTasks.splice(runningTasks.findIndex(_ => _.projectId === projectId), 1)
+    }
+    return this.success()
   }
 
   // 列出所有历史 Task，除去当前正在运行的 Task

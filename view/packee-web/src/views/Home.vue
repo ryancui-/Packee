@@ -209,8 +209,18 @@ export default {
         this.$Notify.error({ title: '出错了', message: msg })
       }
     },
-    stop() {
-      // TODO: 停下来
+    async stop() {
+      const { errno } = await this.$http({
+        url: '/api/stopTask',
+        method: 'post',
+        data: {
+          projectId: this.currentProject.id
+        }
+      })
+      if (errno === 0) {
+        this.$Notify.success({ title: '成功', message: '中断执行' })
+        this.$store.commit('stopTask')
+      }
     },
     loadHistoryMessage(task) {
       this.$store.commit('reviewHistoryTask', task)
