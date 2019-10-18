@@ -129,7 +129,7 @@ module.exports = class extends Base {
   async historyTasksAction() {
     const projectId = this.get('projectId')
     const tasks = db.get('tasks').filter({ projectId }).value()
-    return this.success(tasks)
+    return this.success(tasks.reverse())
   }
 
   // 返回给定项目当前是否有任务正在运行

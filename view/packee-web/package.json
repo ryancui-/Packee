@@ -39,7 +39,8 @@
     ],
     "globals": {
       "$": false,
-      "io": false
+      "io": false,
+      "timeago": false
     },
     "rules": {
       "no-console": "off"

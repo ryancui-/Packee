@@ -89,7 +89,7 @@ function ansiToHTML(s, parseInteractive = true) {
 
   function line(s) {
 
-    function repl(match, p1, p2, offset) {
+    function repl(match, p1, p2) {
       if (p1 && p1.endsWith('m')) {
         p1 = p1.slice(0, -1)
         const vi = parseInt(p1, 10) || ''
@@ -111,7 +111,7 @@ function ansiToHTML(s, parseInteractive = true) {
 
   // http://www.rapidtables.com/code/text/ascii-table.htm
   // http://wiki.bash-hackers.org/scripting/terminalcodes
-  let output = parseInteractive ? s.replace(/\r\n/g, '\n').replace(/^.*\r(?!\n)/mg, '').replace(/.\x08/g, '') : s
+  let output = parseInteractive ? s.replace(/\r\n/g, '\n').replace(/^.*\r(?!\n)/mg, '').replace(/.\\x08/g, '') : s
 
   return output.split('\n').map((s) => {
     return line(s)

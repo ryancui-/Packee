@@ -73,6 +73,7 @@
 
       <div class="home__task-history">
         <div class="home__task-history-item home__task-history-header">
+          <span class="status"></span>
           <span>序号</span>
           <span>创建时间</span>
           <span>耗时</span>
@@ -80,11 +81,17 @@
         <div
           v-for="(task, index) in historyTasks"
           :key="task.taskId"
-          class="home__task-history-item"
+          :class="{
+            'home__task-history-item': true
+          }"
           @click="loadHistoryMessage(task)"
         >
+          <span class="status">
+            <i v-if="task.doneFlag === 0" class="icon icon-check-circle text-success" />
+            <i v-else class="icon icon-x-circle text-danger" />
+          </span>
           <span>#{{ index + 1 }}</span>
-          <span>{{ task.createTime }}</span>
+          <span>{{ formatTime(task.createTime) }}</span>
           <span>{{ task.duration }} ms</span>
         </div>
       </div>
@@ -186,6 +193,9 @@ export default {
         this.messageHTML = ''
       }
       this.messageHTML += ansiToHTML(messageSource)
+    },
+    formatTime(time) {
+      return timeago.format(time, 'zh_CN')
     }
   }
 }
@@ -262,12 +272,19 @@ export default {
     font-size: 13px;
     border-radius: 4px;
     padding: 0 20px;
+    border-bottom: 1px solid #f7f7f7;
     & > span {
       flex: 1;
     }
     &:hover {
       background-color: #dff1f9;
       cursor: pointer;
+    }
+    .status {
+      max-width: 30px;
+      i {
+        font-size: 14px;
+      }
     }
   }
   &__task-history-header {
