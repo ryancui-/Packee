@@ -13,7 +13,6 @@ const store = new Vuex.Store({
     projects: [],
     runningTasks: [],
     historyTasks: [],
-    runningMsg: ''
   },
   mutations: {
     setLogin(state, userInfo) {
@@ -35,12 +34,10 @@ const store = new Vuex.Store({
     },
     setCurrentProject(state, projectId) {
       state.isEditingProject = false
-      state.runningMsg = ''
       state.currentProjectId = projectId
     },
     // 运行一个 task
     runTask(state, task) {
-      state.runningMsg = ''
       state.runningTasks.push(task)
     },
     // 停止当前项目下的 task
@@ -51,17 +48,18 @@ const store = new Vuex.Store({
       }
     },
     appendRunningMessage(state, newMessage) {
-      state.runningMsg += newMessage
+      const task = state.runningTasks.find(_ => _.projectId === state.currentProjectId)
+      task.msg += newMessage
     },
     setHistoryTasks(state, payload) {
       state.historyTasks = payload
     },
     // 重温一下历史任务的数据，但是当前项目的 runningTask 依然是在接收数据的
-    reviewHistoryTask(state, historyTask) {
-      state.runningMsg = historyTask.msg
+    reviewHistoryTask() {
     },
     // 回到当前运行中的 task
     reviewRunningTask() {
+
     }
   },
   getters: {
@@ -71,6 +69,9 @@ const store = new Vuex.Store({
     },
     currentProject(state) {
       return state.projects.find(_ => _.id === state.currentProjectId)
+    },
+    currentTask(state) {
+      return state.runningTasks.findIndex(_ => _.projectId === state.currentProjectId)
     }
   },
   actions: {
@@ -108,7 +109,6 @@ const store = new Vuex.Store({
             }
             task.msg = data.msg
           }
-          state.runningMsg = data.msg
         } else {
           // 任务已经跑完啦
           if (runningTaskIndex !== -1) {

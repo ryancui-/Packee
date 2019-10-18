@@ -62,7 +62,7 @@
           </div>
         </div>
         <div class="home__task-running-msg">
-          <textarea :value="runningMsg" readonly />
+          <pre v-html="messageHTML" />
         </div>
       </div>
       <div class="home__task-history">
@@ -90,12 +90,18 @@
 import { mapState, mapGetters } from 'vuex'
 import Auth from '../components/Auth'
 import ProjectDetail from '../components/ProjectDetail'
+import ansiToHTML from '../util/ansi'
 
 export default {
   name: 'Home',
   components: {
     Auth,
     ProjectDetail
+  },
+  data() {
+    return {
+      messageHTML: ''
+    }
   },
   computed: {
     ...mapState([
@@ -108,7 +114,8 @@ export default {
     ]),
     ...mapGetters([
       'currentProject',
-      'currentProjectRunning'
+      'currentProjectRunning',
+      'currentTask'
     ])
   },
   async created() {
@@ -127,6 +134,7 @@ export default {
       this.$store.commit('setCurrentProject', project.id)
       this.$store.dispatch('fetchProjectRunningTask')
       this.$store.dispatch('fetchProjectHistoryTasks')
+      this.messageHTML = ''
     },
     connectSocket() {
       this.socket = io('/')
@@ -137,6 +145,7 @@ export default {
       this.socket.on('task:msg', ({ projectId, msg }) => {
         if (this.currentProject && projectId === this.currentProject.id) {
           this.$store.commit('appendRunningMessage', msg)
+          this.renderMessage(msg)
         }
       })
     },
@@ -154,6 +163,7 @@ export default {
           taskId: data,
           msg: ''
         })
+        this.messageHTML = ''
       } else {
         this.$Notify.error({ title: '出错了', message: msg })
       }
@@ -163,6 +173,13 @@ export default {
     },
     loadHistoryMessage(task) {
       this.$store.commit('reviewHistoryTask', task)
+      this.renderMessage(task.msg, true)
+    },
+    renderMessage(messageSource, replace = false) {
+      if (replace) {
+        this.messageHTML = ''
+      }
+      this.messageHTML += ansiToHTML(messageSource)
     }
   }
 }
@@ -188,11 +205,9 @@ export default {
 
   &__task-running-msg {
     margin-top: 10px;
-    textarea {
+    & > pre {
       width: 100%;
       height: 500px;
-      outline: 0;
-      resize: none;
       box-sizing: border-box;
       border: 1px solid #e2e2e2;
       border-radius: 4px;
@@ -202,6 +217,7 @@ export default {
       background-color: #f9f9f9;
       color: #000;
       line-height: 1.8;
+      overflow: auto;
     }
   }
 
@@ -223,7 +239,7 @@ export default {
       flex: 1;
     }
     &:hover {
-      background-color: #d1e7f3;
+      background-color: #dff1f9;
       cursor: pointer;
     }
   }
