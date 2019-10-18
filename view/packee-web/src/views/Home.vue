@@ -21,23 +21,26 @@
     </div>
 
     <div v-if="currentProject" class="home__project-container">
-      <button
-        v-if="!isEditingProject"
-        type="button"
-        class="btn btn-primary"
-        @click="$store.commit('setEditingProject')"
-      >
-        编辑
-      </button>
-      <button
-        v-if="isEditingProject"
-        type="button"
-        class="btn btn-primary"
-        @click="$store.commit('setNotEditingProject')"
-      >
-        返回
-      </button>
-      <project-detail v-if="isEditingProject" />
+      <div class="home__project-detail">
+        <button
+          v-if="!isEditingProject"
+          type="button"
+          class="btn btn-primary"
+          @click="$store.commit('setEditingProject')"
+        >
+          编辑
+        </button>
+        <button
+          v-if="isEditingProject"
+          type="button"
+          class="btn btn-primary"
+          @click="$store.commit('setNotEditingProject')"
+        >
+          返回
+        </button>
+        <project-detail v-if="isEditingProject" />
+      </div>
+
       <div class="home__task-running">
         <div class="home__task-running-btns">
           <button
@@ -56,15 +59,18 @@
           >
             停止
           </button>
-          <div v-if="false" class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                 style="width: 100%;"></div>
+          <div v-if="currentProjectRunning" class="home__task-running-indicator">
+            <div class="spinner-grow text-secondary" style="width: 20px; height: 20px; margin-right: 5px;" role="status">
+              <span class="sr-only" />
+            </div>
+            <span>运行中...</span>
           </div>
         </div>
         <div class="home__task-running-msg">
           <pre v-html="messageHTML" />
         </div>
       </div>
+
       <div class="home__task-history">
         <div class="home__task-history-item home__task-history-header">
           <span>序号</span>
@@ -192,8 +198,15 @@ export default {
   box-sizing: border-box;
   padding: 50px;
 
-  &__user {
-    font-size: 15px;
+  &__operation {
+    margin-bottom: 10px;
+  }
+
+  &__project-detail {
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
   }
 
   &__task-running {
@@ -201,13 +214,18 @@ export default {
     padding: 10px;
     border: 1px solid #e2e2e2;
     border-radius: 4px;
+    margin: 10px 0;
   }
-
+  &__task-running-btns {
+    display: flex;
+    align-items: center;
+  }
   &__task-running-msg {
-    margin-top: 10px;
+    margin: 10px 0;
+    position: relative;
     & > pre {
       width: 100%;
-      height: 500px;
+      height: 400px;
       box-sizing: border-box;
       border: 1px solid #e2e2e2;
       border-radius: 4px;
@@ -220,9 +238,18 @@ export default {
       overflow: auto;
     }
   }
+  &__task-running-indicator {
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    & > span {
+      color: #6c757d;
+      font-size: 13px;
+    }
+  }
 
   &__task-history {
-    margin-top: 10px;
+    margin-top: 10px 0;
     box-sizing: border-box;
     border: 1px solid #e2e2e2;
     border-radius: 4px;
