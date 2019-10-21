@@ -3,12 +3,13 @@ const db = require('../model')
 const shortid = require('shortid')
 const path = require('path')
 const fork = require('child_process').fork
+const fse = require('fs-extra')
 const { runningTasks, broadcastProcessing, broadcastDone } = require('../model/socket')
 
 function runAsyncTask(payload) {
   const projectId = payload.projectId
   const taskId = payload.taskId
-  const currentRunningTaskIndex = runningTasks.findIndex(_ => _.projectId === projectId)
+  const currentRunningTaskIndex = runningTasks.findIndex(_ => _.projecId === projectId)
   if (currentRunningTaskIndex !== -1) {
     return false
   }
@@ -79,6 +80,8 @@ module.exports = class extends Base {
     if (exists) {
       return this.fail('存在同名 project')
     }
+
+    await fse.ensureDir(path.join(this.config('projectRoot'), project.name))
 
     const projectId = shortid.generate()
     db.get('projects')

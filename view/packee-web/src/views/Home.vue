@@ -3,6 +3,14 @@
     <auth v-if="!isLogin" @auth="init" />
 
     <div class="home__operation">
+      <button
+        type="button"
+        class="btn btn-primary"
+        style="margin-right: 10px;"
+        @click="openNewProjectDialog"
+      >
+        新建
+      </button>
       <div class="btn-group" role="group">
         <button
           v-for="project in projects"
@@ -118,6 +126,22 @@
         </div>
       </form>
     </at-modal>
+    <at-modal
+      v-model="newProjectModal"
+      title="新建项目"
+      @on-confirm="newProject"
+    >
+      <form>
+        <div class="form-group">
+          <label>Project Name</label>
+          <input
+            v-model="newProjectName"
+            type="text"
+            class="form-control"
+          />
+        </div>
+      </form>
+    </at-modal>
   </div>
 </template>
 
@@ -137,7 +161,9 @@ export default {
     return {
       messageHTML: '',
       runModal: false,
-      params: []
+      newProjectModal: false,
+      params: [],
+      newProjectName: ''
     }
   },
   computed: {
@@ -247,6 +273,30 @@ export default {
           }))
       }
       this.runModal = true
+    },
+    openNewProjectDialog() {
+      this.newProjectName = ''
+      this.newProjectModal = true
+    },
+    // 新建项目
+    async newProject() {
+      if (!this.newProjectName) {
+        this.$Notify.warning({ title: '警告', message: '输入项目名啊' })
+        return
+      }
+
+      const { errno, msg } = await this.$http({
+        url: '/api/createProject',
+        method: 'post',
+        data: {
+          name: this.newProjectName
+        }
+      })
+      if (errno === 0) {
+        await this.$store.dispatch('fetchProjects')
+      } else {
+        this.$Notify.error({ title: '出错了', message: msg })
+      }
     }
   }
 }
@@ -261,6 +311,8 @@ export default {
 
   &__operation {
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
   }
 
   &__project-detail {
