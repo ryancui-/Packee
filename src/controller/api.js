@@ -2,36 +2,38 @@ const Base = require('./base.js')
 const db = require('../model')
 const shortid = require('shortid')
 const path = require('path')
-const fork = require('child_process').fork
+const spawn = require('child_process').spawn
 const fse = require('fs-extra')
 const { runningTasks, broadcastProcessing, broadcastDone } = require('../model/socket')
 
 function runAsyncTask(payload) {
-  const projectId = payload.projectId
-  const taskId = payload.taskId
+  const { projectId, taskId, type, bash, cwd } = payload
   const currentRunningTaskIndex = runningTasks.findIndex(_ => _.projecId === projectId)
   if (currentRunningTaskIndex !== -1) {
     return false
   }
 
-  const worker = fork(path.join(__dirname, '../task/async-worker.js'))
-  worker.on('message', ({ type, data }) => {
-    switch (type) {
-      case 'processing':
-        broadcastProcessing(projectId, taskId, data)
-        break
-      case 'error':
-        // TODO: error 要看看怎么处理
-        break
-      case 'done':
-        broadcastDone(projectId, taskId, data)
-        break
-    }
-  })
+  let childProcess = null
+  if (type === 'start') {
+    childProcess = spawn('sh', ['-c', `${bash}`], { cwd })
+    childProcess.stdout.on('data', data => {
+      broadcastProcessing(projectId, taskId, `${data}`)
+    })
+    childProcess.stderr.on('data', data => {
+      broadcastProcessing(projectId, taskId, `${data}`)
+    })
+    childProcess.on('exit', code => {
+      broadcastDone(projectId, taskId, code)
+    })
+    childProcess.on('error', (err) => {
+      // TODO: error 要看看怎么处理
+      console.log(err)
+    })
+  } else if (type === 'stop' && childProcess) {
+    childProcess.kill('SIGHUP')
+  }
 
-  worker.send(payload)
-  runningTasks.push({ projectId, taskId, worker, msg: '', start: Date.now() })
-
+  runningTasks.push({ projectId, taskId, worker: childProcess, msg: '', start: Date.now() })
   return true
 }
 
