@@ -6,9 +6,4 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync(path.join(think.ROOT_PATH, 'runtime/db.json'))
 const db = low(adapter)
 
-db.defaults({
-  projects: [],
-  tasks: []
-}).write()
-
 module.exports = db
