@@ -155,7 +155,22 @@ module.exports = class extends Base {
   async historyTasksAction() {
     const projectId = this.get('projectId')
     const tasks = db.get('tasks').filter({ projectId }).value()
-    return this.success(tasks.reverse())
+    return this.success(tasks.map(_ => ({
+      taskId: _.taskId,
+      doneFlag: _.doneFlag,
+      duration: _.duration,
+      createTime: _.createTime
+    })).reverse())
+  }
+
+  // 返回对应 taskId 的执行 message
+  async getTaskMessageAction() {
+    const taskId = this.get('taskId')
+    const task = db.get('tasks').filter({ taskId }).value()
+    if (task.length === 0) {
+      return this.fail('no task id')
+    }
+    return this.success(task[0].msg)
   }
 
   // 返回给定项目当前是否有任务正在运行

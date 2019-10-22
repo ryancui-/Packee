@@ -90,7 +90,8 @@
           v-for="(task, index) in historyTasks"
           :key="task.taskId"
           :class="{
-            'home__task-history-item': true
+            'home__task-history-item': true,
+            'active': activeHistoryTask && task.taskId === activeHistoryTask.taskId
           }"
           @click="loadHistoryMessage(task)"
         >
@@ -100,7 +101,7 @@
           </span>
           <span>#{{ index + 1 }}</span>
           <span>{{ formatTime(task.createTime) }}</span>
-          <span>{{ task.duration }} ms</span>
+          <span>{{ formatDuration(task.duration) }}</span>
         </div>
       </div>
     </div>
@@ -163,7 +164,8 @@ export default {
       runModal: false,
       newProjectModal: false,
       params: [],
-      newProjectName: ''
+      newProjectName: '',
+      activeHistoryTask: null
     }
   },
   computed: {
@@ -194,7 +196,7 @@ export default {
       this.connectSocket()
     },
     async onSelectProject(project) {
-      if (project.id !== this.currentProject.id) {
+      if (!this.currentProject || project.id !== this.currentProject.id) {
         this.$store.commit('setCurrentProject', project.id)
         await this.$store.dispatch('fetchProjectRunningTask')
         await this.$store.dispatch('fetchProjectHistoryTasks')
@@ -250,9 +252,19 @@ export default {
         this.$store.commit('stopTask')
       }
     },
-    loadHistoryMessage(task) {
-      this.$store.commit('reviewHistoryTask', task)
-      this.renderMessage(task.msg, true)
+    async loadHistoryMessage(task) {
+      const { errno, data, msg } = await this.$http({
+        url: '/api/getTaskMessage',
+        data: {
+          taskId: task.taskId
+        }
+      })
+      if (errno === 0) {
+        this.activeHistoryTask = task
+        this.renderMessage(data, true)
+      } else {
+        this.$Notify.error({ title: '出错了', message: msg })
+      }
     },
     renderMessage(messageSource, replace = false) {
       if (replace) {
@@ -262,6 +274,12 @@ export default {
     },
     formatTime(time) {
       return timeago.format(time, 'zh_CN')
+    },
+    formatDuration(duration) {
+      if (duration > 1000) {
+        return `${duration / 1000} s`
+      }
+      return `${duration} ms`
     },
     openParamsDialog() {
       this.params = []
@@ -381,8 +399,8 @@ export default {
     & > span {
       flex: 1;
     }
-    &:hover {
-      background-color: #dff1f9;
+    &:hover, &.active {
+      background-color: rgb(236, 245, 255);
       cursor: pointer;
     }
     .status {
