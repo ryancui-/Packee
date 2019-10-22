@@ -194,12 +194,14 @@ export default {
       this.connectSocket()
     },
     async onSelectProject(project) {
-      this.$store.commit('setCurrentProject', project.id)
-      await this.$store.dispatch('fetchProjectRunningTask')
-      await this.$store.dispatch('fetchProjectHistoryTasks')
-      this.messageHTML = ''
-      if (this.currentTask) {
-        this.renderMessage(this.currentTask.msg, true)
+      if (project.id !== this.currentProject.id) {
+        this.$store.commit('setCurrentProject', project.id)
+        await this.$store.dispatch('fetchProjectRunningTask')
+        await this.$store.dispatch('fetchProjectHistoryTasks')
+        this.messageHTML = ''
+        if (this.currentTask) {
+          this.renderMessage(this.currentTask.msg, true)
+        }
       }
     },
     connectSocket() {
